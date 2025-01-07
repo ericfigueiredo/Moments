@@ -1,41 +1,51 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Moment } from '../../Moment';
 
 @Component({
   selector: 'app-moment-form',
   standalone: false,
 
   templateUrl: './moment-form.component.html',
-  styleUrl: './moment-form.component.css'
+  styleUrl: './moment-form.component.css',
 })
 export class MomentFormComponent implements OnInit {
+  @Output() newItemValue = new EventEmitter<string>();
+  @Output() onSubmit = new EventEmitter<Moment>();
   @Input() btn_text!: string;
 
   momentForm!: FormGroup;
 
-  constructor(){}
+  constructor() {}
 
   ngOnInit(): void {
     this.momentForm = new FormGroup({
       id: new FormControl(''),
       title: new FormControl('', [Validators.required]),
       description: new FormControl('', [Validators.required]),
-      image: new FormControl('')
+      image: new FormControl(''),
     });
   }
 
-  get title(){
+  get title() {
     return this.momentForm.get('title')!;
   }
-  get description(){
+  get description() {
     return this.momentForm.get('description')!;
   }
 
-  submit(){
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    this.momentForm.patchValue({ image: file });
+  }
+
+  submit() {
     if (this.momentForm.invalid) {
       return;
     }
-    console.log('Enviou o formulário');
-  }
 
+    console.log(this.momentForm.value);
+
+    this.onSubmit.emit(this.momentForm.value);
+  }
 }
